@@ -29,5 +29,5 @@ public interface PublicUserService {
 
     List<CompilationDto> getAllCompilations(Boolean pinned, Integer from, Integer size);
 
-    CompilationDto getCompilationInfo(int CompId);
+    CompilationDto getCompilationInfo(int compId);
 }

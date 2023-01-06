@@ -23,7 +23,7 @@ public class ParticipationRequest {
     @Column(name = "request_id")
     private Long id;
     @Column(name = "creation_date")
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created;
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
