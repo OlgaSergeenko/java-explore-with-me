@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.admin.category.CategoryDto;
 import ru.practicum.client.NewHitRequestDto;
 import ru.practicum.client.StatClient;
-import ru.practicum.admin.category.CategoryDto;
 import ru.practicum.compilations.CompilationDto;
 import ru.practicum.enumerated.EventSortParam;
 import ru.practicum.event.dto.EventFullDto;
@@ -53,9 +53,6 @@ public class PublicServerController {
         }
         if (rangeEnd != null) {
             endTime = LocalDateTime.parse(rangeEnd, formatter);
-        }
-        if (categories.get(0) == 0) {
-            categories = null;
         }
 
         statClient.saveNewHit(NewHitRequestDto.builder()

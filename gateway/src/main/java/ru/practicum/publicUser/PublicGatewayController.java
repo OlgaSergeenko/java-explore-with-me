@@ -30,10 +30,6 @@ public class PublicGatewayController {
                                                 @RequestParam(required = false) EventSortParam sort,
                                                 @RequestParam(required = false, defaultValue = "0") Integer from,
                                                 @RequestParam(required = false, defaultValue = "10") Integer size) {
-        if (categories.get(0) == 0) {
-            categories = null;
-        }
-
         log.info("Public: Getting all events");
 
         return publicUserClient.findAllEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.model.ViewStats;
@@ -26,7 +27,9 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris) {
+
         List<ViewStats> stats = statsRepository.countHitsByUri(start, end, uris);
         return stats.stream().map(StatMapper::toDto).collect(Collectors.toList());
     }
