@@ -1,7 +1,6 @@
 package ru.practicum.admin.events;
 
 import ru.practicum.enumerated.EventState;
-import ru.practicum.event.Event;
 import ru.practicum.event.dto.EventFullDto;
 
 import java.time.LocalDateTime;
@@ -22,6 +21,4 @@ public interface AdminEventService {
     EventFullDto publishEvent(long eventId);
 
     EventFullDto rejectEvent(long eventId);
-
-    Event getEventByIdOrThrowNotFound(long eventId);
 }

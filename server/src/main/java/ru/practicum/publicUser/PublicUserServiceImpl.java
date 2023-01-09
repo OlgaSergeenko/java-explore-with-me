@@ -2,18 +2,19 @@ package ru.practicum.publicUser;
 
 import com.querydsl.core.types.Predicate;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.admin.category.Category;
 import ru.practicum.admin.category.CategoryDto;
 import ru.practicum.admin.category.CategoryMapper;
-import ru.practicum.admin.category.CategoryService;
-import ru.practicum.admin.events.AdminEventService;
+import ru.practicum.admin.category.CategoryRepository;
 import ru.practicum.compilations.Compilation;
 import ru.practicum.compilations.CompilationDto;
 import ru.practicum.compilations.CompilationMapper;
-import ru.practicum.compilations.CompilationService;
+import ru.practicum.compilations.CompilationRepository;
 import ru.practicum.enumerated.EventSortParam;
 import ru.practicum.enumerated.EventState;
 import ru.practicum.event.Event;
@@ -22,7 +23,10 @@ import ru.practicum.event.EventRepository;
 import ru.practicum.event.QEvent;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
+import ru.practicum.exceptions.CategoryNotFoundException;
+import ru.practicum.exceptions.CompilationNotFoundException;
 import ru.practicum.exceptions.EventNotFoundException;
+import ru.practicum.request.RequestRepository;
 import ru.practicum.util.QPredicates;
 
 import java.time.LocalDateTime;
@@ -32,14 +36,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+@Transactional(readOnly = true)
 @Service
 @AllArgsConstructor
 public class PublicUserServiceImpl implements PublicUserService {
 
     private final EventRepository eventRepository;
-    private final AdminEventService eventService;
-    private final CompilationService compilationService;
-    private final CategoryService categoryService;
+    private final CompilationRepository compilationRepository;
+    private final CategoryRepository categoryRepository;
+    private final RequestRepository requestRepository;
 
     @Override
     public List<EventShortDto> getAllEvents(String text,
@@ -81,22 +86,21 @@ public class PublicUserServiceImpl implements PublicUserService {
                 StreamSupport.stream(foundEvents2.spliterator(), false)
                         .collect(Collectors.toList());
 
-        ev1.addAll(ev2);
+        result.addAll(ev1);
+        result.addAll(ev2);
 
-        List<Event> events = ev1.stream().distinct().collect(Collectors.toList());
+        result.stream()
+                .distinct()
+                .forEach(e -> e.setConfirmedRequests(requestRepository.countRequestsByEventId(e.getId())));
 
         if (onlyAvailable) {
-            List<Event> events1 = events.stream()
-                    .filter(e -> e.getConfirmedRequests() < e.getParticipantLimit())
-                    .collect(Collectors.toList());
-            List<Event> events2 = events.stream()
-                    .filter(e -> e.getParticipantLimit() == 0)
+            List<Event> events = ev1.stream()
+                    .filter(e -> e.getConfirmedRequests() < e.getParticipantLimit() || e.getParticipantLimit() == 0)
                     .collect(Collectors.toList());
 
-            result.addAll(events1);
-            result.addAll(events2);
+            result.addAll(events);
         } else {
-            result = events;
+            result = ev1;
         }
 
         if (sortParam != null) {
@@ -119,12 +123,16 @@ public class PublicUserServiceImpl implements PublicUserService {
         return result.stream().map(EventMapper::toShortDto).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public EventFullDto findEvent(long eventId) {
-        Event event = eventService.getEventByIdOrThrowNotFound(eventId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EventNotFoundException("Event not found"));
         if (event.getState() != EventState.PUBLISHED) {
             throw new EventNotFoundException("Event is not published");
         }
+        int confirmedReq = requestRepository.countRequestsByEventId(eventId);
+        event.setConfirmedRequests(confirmedReq);
         event.setViews(event.getViews() + 1);
         eventRepository.save(event);
         return EventMapper.toFullDto(event);
@@ -133,24 +141,34 @@ public class PublicUserServiceImpl implements PublicUserService {
     @Override
     public List<CategoryDto> getAllCategories(Integer from, Integer size) {
         Pageable page = PageRequest.of(from / size, size);
-        return categoryService.findAll(page);
+        Page<Category> categories = categoryRepository.findAll(page);
+        return categories.getContent().stream().map(CategoryMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
     public CategoryDto getCategoryInfo(int catId) {
-        Category category = categoryService.getCategoryByIdOrThrowNotFound(catId);
+        Category category = categoryRepository.findById(catId)
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
         return CategoryMapper.toDto(category);
     }
 
     @Override
     public List<CompilationDto> getAllCompilations(Boolean pinned, Integer from, Integer size) {
         Pageable page = PageRequest.of(from / size, size);
-        return compilationService.findCompilations(pinned, page);
+        Page<Compilation> compsPage;
+        if (pinned == null) {
+            compsPage = compilationRepository.findAll(page);
+        } else {
+            compsPage = compilationRepository.findAllByPinned(pinned, page);
+        }
+        List<Compilation> comps = compsPage.getContent();
+        return comps.stream().map(CompilationMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
     public CompilationDto getCompilationInfo(int compId) {
-        Compilation compilation = compilationService.findByIdOrThrowNotFound(compId);
+        Compilation compilation = compilationRepository.findById(compId)
+                .orElseThrow(() -> new CompilationNotFoundException("Compilation not found"));
         return CompilationMapper.toDto(compilation);
     }
 }

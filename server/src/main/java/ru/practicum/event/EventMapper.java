@@ -43,7 +43,7 @@ public class EventMapper {
                 .eventDate(newEventDto.getEventDate())
                 .initiator(User.builder().build())
                 .location(newEventDto.getLocation())
-                .paid(newEventDto.getPaid())
+                .paid(newEventDto.isPaid())
                 .participantLimit(newEventDto.getParticipantLimit())
                 .requestModeration(newEventDto.getRequestModeration())
                 .title(newEventDto.getTitle())

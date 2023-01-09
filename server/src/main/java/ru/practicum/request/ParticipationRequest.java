@@ -24,7 +24,7 @@ public class ParticipationRequest {
     private Long id;
     @Column(name = "creation_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime created;
+    private LocalDateTime created = LocalDateTime.now();
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;

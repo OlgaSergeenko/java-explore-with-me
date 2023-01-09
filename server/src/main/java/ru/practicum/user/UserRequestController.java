@@ -10,14 +10,14 @@ import ru.practicum.user.requests.UserRequestService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/users/{userId}/requests")
 @AllArgsConstructor
 @Slf4j
 public class UserRequestController {
 
     private final UserRequestService requestService;
 
-    @PostMapping("/{userId}/requests")
+    @PostMapping
     public ResponseEntity<ParticipationRequestDto> postNewRequest(@RequestParam("eventId") Long eventId,
                                                                   @PathVariable("userId") Long userId) {
         ParticipationRequestDto requestSaved = requestService.postParticipationRequest(userId, eventId);
@@ -25,12 +25,12 @@ public class UserRequestController {
         return ResponseEntity.ok(requestSaved);
     }
 
-    @GetMapping("/{userId}/requests")
+    @GetMapping
     public ResponseEntity<List<ParticipationRequestDto>> findAllUserRequests(@PathVariable("userId") Long userId) {
         return ResponseEntity.ok(requestService.getAllParticipationRequestsByUserId(userId));
     }
 
-    @PatchMapping("/{userId}/requests/{requestId}/cancel")
+    @PatchMapping("/{requestId}/cancel")
     public ResponseEntity<ParticipationRequestDto> cancelRequest(@PathVariable("userId") Long userId,
                                                                  @PathVariable("requestId") Long reqId) {
         log.info(String.format("Cancelling the request with id - %d", reqId));

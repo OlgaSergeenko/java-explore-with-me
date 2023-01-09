@@ -4,7 +4,7 @@ import lombok.*;
 import ru.practicum.event.Event;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,20 +21,22 @@ public class Compilation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "compilation_id")
     private Integer id;
-    private Boolean pinned;
-    @NotNull
+    private boolean pinned;
+    @NotBlank
     private String title;
-    @OneToMany(mappedBy = "compilation")
+    @ManyToMany
+    @JoinTable(
+            name = "compilation_event",
+            joinColumns = @JoinColumn(name = "compilation_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id"))
     @ToString.Exclude
     private List<Event> events = new ArrayList<>();
 
     public void addEvent(Event event) {
         events.add(event);
-        event.setCompilation(this);
     }
 
     public void removeEvent(Event event) {
         events.remove(event);
-        event.setCompilation(null);
     }
 }

@@ -1,35 +1,34 @@
 package ru.practicum.user.requests;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.admin.users.User;
-import ru.practicum.admin.users.UserService;
+import ru.practicum.admin.users.UserRepository;
 import ru.practicum.enumerated.EventState;
 import ru.practicum.enumerated.RequestStatus;
 import ru.practicum.event.Event;
+import ru.practicum.event.EventRepository;
+import ru.practicum.exceptions.EventNotFoundException;
 import ru.practicum.exceptions.ParticipationRequestException;
 import ru.practicum.exceptions.RequestNotFoundException;
+import ru.practicum.exceptions.UserNotFoundException;
 import ru.practicum.request.ParticipationRequest;
 import ru.practicum.request.ParticipationRequestDto;
 import ru.practicum.request.RequestMapper;
 import ru.practicum.request.RequestRepository;
-import ru.practicum.user.events.UserEventService;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Transactional(readOnly = true)
 @Service
-@Getter
-@Setter
 @AllArgsConstructor
 public class UserRequestServiceImpl implements UserRequestService {
 
-    private final UserEventService eventService;
-    private final UserService userService;
+    private final EventRepository eventRepository;
+    private final UserRepository userRepository;
     private final RequestRepository requestRepository;
 
     @Override
@@ -39,10 +38,12 @@ public class UserRequestServiceImpl implements UserRequestService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public ParticipationRequestDto postParticipationRequest(long userId, long eventId) {
         Optional<ParticipationRequest> requestCheck = requestRepository.findByRequesterIdAndEventId(userId, eventId);
-        Event event = eventService.getEventByIdOrThrowNotFound(eventId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EventNotFoundException("Event not found"));
 
         if (requestCheck.isPresent()) {
             throw new ParticipationRequestException("Request to this event is already sent.");
@@ -61,29 +62,26 @@ public class UserRequestServiceImpl implements UserRequestService {
         }
 
         ParticipationRequest request = new ParticipationRequest();
-        User requester = userService.findByIdOrThrowNotFound(userId);
+        User requester = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        request.setCreated(LocalDateTime.now().plusSeconds(3));
         request.setEvent(event);
         request.setRequester(requester);
 
         if (!event.getRequestModeration()) {
-            request.setStatus(ru.practicum.enumerated.RequestStatus.CONFIRMED);
+            request.setStatus(RequestStatus.CONFIRMED);
         } else {
             request.setStatus(RequestStatus.PENDING);
         }
         return RequestMapper.toDto(requestRepository.save(request));
     }
 
+    @Transactional
     @Override
     public ParticipationRequestDto cancelParticipationRequest(long userId, long reqId) {
-        Optional<ParticipationRequest> request = requestRepository.findById(reqId);
-        if (request.isEmpty()) {
-            throw new RequestNotFoundException("Request is not found");
-        }
-        ParticipationRequest toCancel = request.get();
-        toCancel.setStatus(ru.practicum.enumerated.RequestStatus.CANCELED);
-
-        return RequestMapper.toDto(requestRepository.save(toCancel));
+        ParticipationRequest request = requestRepository.findByIdAndRequesterId(reqId, userId)
+                .orElseThrow(() -> new RequestNotFoundException("Request is not found"));
+        request.setStatus(RequestStatus.CANCELED);
+        return RequestMapper.toDto(requestRepository.save(request));
     }
 }

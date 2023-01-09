@@ -1,17 +1,13 @@
 package ru.practicum.admin.users;
 
 import lombok.AllArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.practicum.exceptions.ConflictException;
 import ru.practicum.exceptions.UserNotFoundException;
 
-import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,15 +19,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
-        try {
-            this.userRepository.save(user);
-        } catch (DataIntegrityViolationException e) {
-            if (e.getMostSpecificCause().getClass().getName().equals("org.postgresql.util.PSQLException")
-                    && ((SQLException) e.getMostSpecificCause()).getSQLState().equals("23505"))
-                throw new ConflictException("conflict");
-            throw e;
-        }
-        return UserMapper.toDto(user);
+        User saved = userRepository.save(user);
+
+        return UserMapper.toDto(saved);
     }
 
     @Override
@@ -47,23 +37,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void remove(long id) {
-        checkUserExistenceOrThrowNotFound(id);
+        userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         userRepository.deleteById(id);
-    }
-
-    @Override
-    public User findByIdOrThrowNotFound(long id) {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isEmpty()) {
-            throw new UserNotFoundException("User not found");
-        }
-        return user.get();
-    }
-
-    public void checkUserExistenceOrThrowNotFound(long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new UserNotFoundException("User not found");
-        }
     }
 }

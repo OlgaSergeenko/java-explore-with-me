@@ -9,8 +9,6 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Page<User> findAll(Pageable pageable);
-
     @Query(value = "select u " +
             "from User as u " +
             "where u.id in ?1")

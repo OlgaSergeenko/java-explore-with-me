@@ -1,6 +1,5 @@
 package ru.practicum.user.events;
 
-import ru.practicum.event.Event;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
@@ -25,6 +24,4 @@ public interface UserEventService {
     ParticipationRequestDto confirmRequest(long userId, long eventId, long reqId);
 
     ParticipationRequestDto rejectRequest(long userId, long eventId, long reqId);
-
-    Event getEventByIdOrThrowNotFound(long eventId);
 }

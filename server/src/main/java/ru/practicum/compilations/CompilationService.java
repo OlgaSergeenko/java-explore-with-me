@@ -1,9 +1,5 @@
 package ru.practicum.compilations;
 
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
-
 public interface CompilationService {
 
     CompilationDto postNewCompilation(NewCompilationDto compilationDto);
@@ -17,8 +13,4 @@ public interface CompilationService {
     void pinCompilation(int compId);
 
     void unpinCompilation(int compId);
-
-    List<CompilationDto> findCompilations(Boolean pinned, Pageable page);
-
-    Compilation findByIdOrThrowNotFound(int compId);
 }

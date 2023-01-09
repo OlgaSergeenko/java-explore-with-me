@@ -13,6 +13,4 @@ public interface CategoryService {
     void remove(int catId);
 
     List<CategoryDto> findAll(Pageable pageable);
-
-    Category getCategoryByIdOrThrowNotFound(int catId);
 }

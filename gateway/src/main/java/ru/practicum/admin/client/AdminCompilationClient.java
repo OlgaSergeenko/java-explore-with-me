@@ -49,8 +49,4 @@ public class AdminCompilationClient extends BaseClient {
     public ResponseEntity<Object> unpinCompilation(int compId) {
         return delete("/" + compId + "/pin");
     }
-
-    public ResponseEntity<Object> rejectEvent(long eventId) {
-        return patch("/" + eventId + "/reject", eventId);
-    }
 }

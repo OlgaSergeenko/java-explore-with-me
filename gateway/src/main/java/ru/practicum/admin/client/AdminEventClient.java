@@ -10,7 +10,6 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.admin.dto.AdminUpdateEventRequestDto;
-import ru.practicum.admin.dto.EventState;
 import ru.practicum.baseClient.BaseClient;
 
 import java.util.HashMap;
@@ -35,7 +34,7 @@ public class AdminEventClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getEvents(List<Long> users,
-                                            List<EventState> states,
+                                            List<String> states,
                                             List<Integer> categories,
                                             String rangeStart,
                                             String rangeEnd,

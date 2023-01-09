@@ -1,15 +1,16 @@
 package ru.practicum.event;
 
 import lombok.*;
+import org.hibernate.Hibernate;
 import ru.practicum.admin.category.Category;
 import ru.practicum.admin.users.User;
-import ru.practicum.compilations.Compilation;
 import ru.practicum.enumerated.EventState;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -25,6 +26,7 @@ public class Event {
     @Column(name = "event_id")
     private Long id;
     @Size(min = 20, max = 2000)
+    @Column(nullable = false)
     private String annotation;
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
@@ -34,8 +36,9 @@ public class Event {
     @Column(name = "creation_date")
     private LocalDateTime createdOn;
     @Size(min = 20, max = 7000)
+    @Column(nullable = false)
     private String description;
-    @Column(name = "event_date")
+    @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
     @ManyToOne
     @JoinColumn(name = "initiator_id", nullable = false)
@@ -56,11 +59,22 @@ public class Event {
     @Column(name = "request_moderation")
     private Boolean requestModeration;
     @Size(min = 3, max = 120)
+    @Column(nullable = false)
     private String title;
     @Enumerated(EnumType.STRING)
     private EventState state;
     private Integer views;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "compilation_id")
-    private Compilation compilation;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Event event = (Event) o;
+        return id != null && Objects.equals(id, event.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

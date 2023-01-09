@@ -6,11 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CompilationRepository extends JpaRepository<Compilation, Integer> {
 
-    Page<Compilation> findAll(Pageable pageable);
-
-    Page<Compilation> findAllByPinnedIsTrue(Pageable pageable);
-
-    Page<Compilation> findAllByPinnedIsFalse(Pageable pageable);
+    Page<Compilation> findAllByPinned(boolean pinned, Pageable pageable);
 }
 
 

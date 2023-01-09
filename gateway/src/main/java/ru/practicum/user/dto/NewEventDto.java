@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -16,12 +16,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NewEventDto {
-    @NotEmpty
+    @NotBlank
     @Size(min = 20, max = 2000)
     private String annotation;
     @NotNull
     private Integer category;
-    @NotEmpty
+    @NotBlank
     @Size(min = 20, max = 7000)
     private String description;
     @NotNull
@@ -32,7 +32,7 @@ public class NewEventDto {
     private Boolean paid;
     private Integer participantLimit;
     private Boolean requestModeration;
-    @NotEmpty
+    @NotBlank
     @Size(min = 3, max = 120)
     private String title;
 }

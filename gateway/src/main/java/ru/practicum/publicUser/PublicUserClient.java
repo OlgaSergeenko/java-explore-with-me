@@ -37,7 +37,7 @@ public class PublicUserClient extends BaseClient {
                                                 String rangeStart,
                                                 String rangeEnd,
                                                 Boolean onlyAvailable,
-                                                EventSortParam sort,
+                                                String sort,
                                                 Integer from,
                                                 Integer size) {
         Map<String, Object> parameters = new HashMap<>();

@@ -11,7 +11,7 @@ public class CompilationMapper {
         return Compilation.builder()
                 .id(compilationDto.getId())
                 .events(Collections.emptyList())
-                .pinned(compilationDto.getPinned())
+                .pinned(compilationDto.isPinned())
                 .title(compilationDto.getTitle())
                 .build();
     }
@@ -20,7 +20,7 @@ public class CompilationMapper {
         return CompilationDto.builder()
                 .id(compilation.getId())
                 .events(compilation.getEvents().stream().map(EventMapper::toShortDto).collect(Collectors.toList()))
-                .pinned(compilation.getPinned())
+                .pinned(compilation.isPinned())
                 .title(compilation.getTitle())
                 .build();
     }

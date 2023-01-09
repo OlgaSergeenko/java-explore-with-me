@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.validator.constraints.UniqueElements;
 import ru.practicum.event.dto.EventShortDto;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -19,6 +20,6 @@ public class CompilationDto {
     private Integer id;
     @NotNull
     private Boolean pinned;
-    @NotNull
+    @NotBlank
     private String title;
 }

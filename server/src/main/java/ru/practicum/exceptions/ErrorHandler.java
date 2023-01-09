@@ -13,7 +13,7 @@ public class ErrorHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleForbiddenAccessException(final DataIntegrityViolationException e) {
+    public ErrorResponse handleConflictException(final DataIntegrityViolationException e) {
         return new ErrorResponse(e.getMessage());
     }
 
@@ -47,25 +47,18 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
+    @ExceptionHandler(OperationNotAllowedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleOperationNotAllowedException(final OperationNotAllowedException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
     @ExceptionHandler(CategoryNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleCategoryNotFoundException(final CategoryNotFoundException e) {
         return new ErrorResponse(e.getMessage());
     }
 
-//
-//    @ExceptionHandler(BookingNotFoundException.class)
-//    @ResponseStatus(HttpStatus.NOT_FOUND)
-//    public ErrorResponse handleBookingNotFoundException(final BookingNotFoundException e) {
-//        return new ErrorResponse(e.getMessage());
-//    }
-//
-//    @ExceptionHandler(RequestNotFoundException.class)
-//    @ResponseStatus(HttpStatus.NOT_FOUND)
-//    public ErrorResponse handleRequestNotFoundException(final RequestNotFoundException e) {
-//        return new ErrorResponse(e.getMessage());
-//    }
-//
     @ExceptionHandler(ParticipationRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleParticipationRequestException(final IllegalArgumentException e) {

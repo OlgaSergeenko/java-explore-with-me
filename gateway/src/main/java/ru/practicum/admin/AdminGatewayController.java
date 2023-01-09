@@ -68,7 +68,7 @@ public class AdminGatewayController {
 
     @GetMapping("/events")
     public ResponseEntity<Object> getAllEventsByParams(@RequestParam(required = false) List<Long> users,
-                                                       @RequestParam(required = false) List<EventState> states,
+                                                       @RequestParam(required = false) List<String> states,
                                                        @RequestParam(required = false) List<Integer> categories,
                                                        @RequestParam(required = false) String rangeStart,
                                                        @RequestParam(required = false) String rangeEnd,

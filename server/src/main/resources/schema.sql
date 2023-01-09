@@ -3,7 +3,8 @@ DROP TABLE IF EXISTS CATEGORY cascade;
 DROP TABLE IF EXISTS EVENT cascade;
 DROP TABLE IF EXISTS LOCATION cascade;
 DROP TABLE IF EXISTS REQUEST cascade;
-DROP TABLE IF EXISTS COMPILATION;
+DROP TABLE IF EXISTS COMPILATION cascade;
+DROP TABLE IF EXISTS COMPILATION_EVENT cascade;
 
 CREATE TABLE IF NOT EXISTS EWM_USER
 (
@@ -21,8 +22,8 @@ CREATE TABLE IF NOT EXISTS CATEGORY
 CREATE TABLE IF NOT EXISTS COMPILATION
 (
     compilation_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    pinned         BOOLEAN,
-    title          VARCHAR(120)
+    pinned         BOOLEAN NOT NULL,
+    title          VARCHAR(120) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS EVENT
@@ -46,8 +47,14 @@ CREATE TABLE IF NOT EXISTS EVENT
     state              VARCHAR(50),
     title              VARCHAR(120)                          NOT NULL
         CONSTRAINT EVENT_TITLE CHECK (length(annotation) >= 3),
-    views              BIGINT,
-    compilation_id     INT REFERENCES COMPILATION (compilation_id)
+    views              BIGINT
+);
+
+CREATE TABLE IF NOT EXISTS COMPILATION_EVENT
+(
+    compilation_id BIGINT REFERENCES COMPILATION (compilation_id),
+    event_id BIGINT REFERENCES EVENT (event_id),
+    CONSTRAINT comp_event_pk primary key (compilation_id, event_id)
 );
 
 CREATE TABLE IF NOT EXISTS REQUEST
@@ -56,6 +63,6 @@ CREATE TABLE IF NOT EXISTS REQUEST
     creation_date TIMESTAMP WITHOUT TIME ZONE,
     event_id      BIGINT REFERENCES EVENT (event_id)   NOT NULL,
     requester_id  BIGINT REFERENCES EWM_USER (user_id) NOT NULL,
-    status         VARCHAR(50)
+    status        VARCHAR(50)
 );
 

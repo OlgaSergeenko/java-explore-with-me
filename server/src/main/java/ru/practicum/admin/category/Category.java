@@ -3,6 +3,7 @@ package ru.practicum.admin.category;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
@@ -17,6 +18,7 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
     private Integer id;
-    @Column(length = 50, unique = true)
+    @Column(length = 50, unique = true, nullable = false)
+    @NotBlank
     private String name;
 }

@@ -5,14 +5,16 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.admin.category.Category;
-import ru.practicum.admin.category.CategoryService;
+import ru.practicum.admin.category.CategoryRepository;
 import ru.practicum.enumerated.EventState;
 import ru.practicum.event.Event;
 import ru.practicum.event.EventMapper;
 import ru.practicum.event.EventRepository;
 import ru.practicum.event.QEvent;
 import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.exceptions.CategoryNotFoundException;
 import ru.practicum.exceptions.EventNotFoundException;
 import ru.practicum.exceptions.EventRequestException;
 import ru.practicum.util.QPredicates;
@@ -23,12 +25,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+@Transactional(readOnly = true)
 @Service
 @AllArgsConstructor
 public class AdminEventServiceImpl implements AdminEventService {
 
     private final EventRepository eventRepository;
-    private final CategoryService categoryService;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public List<EventFullDto> getALlEvents(List<Long> users,
@@ -55,13 +58,16 @@ public class AdminEventServiceImpl implements AdminEventService {
         return result.stream().map(EventMapper::toFullDto).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public EventFullDto editEvent(long eventId, AdminUpdateEventRequestDto eventRequestDto) {
-        Event event = getEventByIdOrThrowNotFound(eventId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EventNotFoundException("Event not found"));
 
         Optional.ofNullable(eventRequestDto.getAnnotation()).ifPresent(event::setAnnotation);
         if (Optional.ofNullable(eventRequestDto.getCategoryId()).isPresent()) {
-            Category category = categoryService.getCategoryByIdOrThrowNotFound(eventRequestDto.getCategoryId());
+            Category category = categoryRepository.findById(eventRequestDto.getCategoryId())
+                    .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
             event.setCategory(category);
         }
         Optional.ofNullable(eventRequestDto.getDescription()).ifPresent(event::setDescription);
@@ -75,9 +81,11 @@ public class AdminEventServiceImpl implements AdminEventService {
         return EventMapper.toFullDto(eventRepository.save(event));
     }
 
+    @Transactional
     @Override
     public EventFullDto publishEvent(long eventId) {
-        Event event = getEventByIdOrThrowNotFound(eventId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EventNotFoundException("Event not found"));
         if (event.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
             throw new EventRequestException("Event is sooner than an hour.");
         }
@@ -87,12 +95,15 @@ public class AdminEventServiceImpl implements AdminEventService {
         }
 
         event.setState(EventState.PUBLISHED);
+        event.setPublishedOn(LocalDateTime.now());
         return EventMapper.toFullDto(eventRepository.save(event));
     }
 
+    @Transactional
     @Override
     public EventFullDto rejectEvent(long eventId) {
-        Event event = getEventByIdOrThrowNotFound(eventId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EventNotFoundException("Event not found"));
 
         if (event.getState().equals(EventState.PUBLISHED)) {
             throw new EventRequestException("Published events can not be rejected.");
@@ -100,14 +111,5 @@ public class AdminEventServiceImpl implements AdminEventService {
 
         event.setState(EventState.CANCELED);
         return EventMapper.toFullDto(eventRepository.save(event));
-    }
-
-    @Override
-    public Event getEventByIdOrThrowNotFound(long eventId) {
-        Optional<Event> event = eventRepository.findById(eventId);
-        if (event.isEmpty()) {
-            throw new EventNotFoundException("Event not found");
-        }
-        return event.get();
     }
 }
