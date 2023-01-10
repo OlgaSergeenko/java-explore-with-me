@@ -39,7 +39,7 @@ public class PublicServerController {
                                                              @RequestParam(required = false) Boolean paid,
                                                              @RequestParam(required = false) String rangeStart,
                                                              @RequestParam(required = false) String rangeEnd,
-                                                             @RequestParam(required = false, defaultValue = "false") Boolean onlyAvailable,
+                                                             @RequestParam(required = false, defaultValue = "false") boolean onlyAvailable,
                                                              @RequestParam(required = false) EventSortParam sort,
                                                              @RequestParam Integer from,
                                                              @RequestParam Integer size) {

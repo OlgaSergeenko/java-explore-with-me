@@ -16,7 +16,7 @@ public interface PublicUserService {
                                      Boolean paid,
                                      LocalDateTime rangeStart,
                                      LocalDateTime rangeEnd,
-                                     Boolean onlyAvailable,
+                                     boolean onlyAvailable,
                                      EventSortParam sort,
                                      Integer from,
                                      Integer size);

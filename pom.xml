@@ -25,40 +25,7 @@
 	<properties>
 		<java.version>11</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<lombok.version>1.18.20</lombok.version>
-		<postgresql.version>42.3.8</postgresql.version>
-		<commons-lang3.version>3.11</commons-lang3.version>
-		<querydsl-jpa.version>5.0.0</querydsl-jpa.version>
 	</properties>
-
-	<dependencies>
-		<dependency>
-		<groupId>org.apache.commons</groupId>
-		<artifactId>commons-lang3</artifactId>
-		<version>${commons-lang3.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>${lombok.version}</version>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>${postgresql.version}</version>
-			<scope>runtime</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>com.querydsl</groupId>
-			<artifactId>querydsl-jpa</artifactId>
-			<version>${querydsl-jpa.version}</version>
-		</dependency>
-
-	</dependencies>
 
 	<build>
 		<pluginManagement>

@@ -1,5 +1,6 @@
 package ru.practicum.publicUser;
 
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Predicate;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,7 +31,6 @@ import ru.practicum.request.RequestRepository;
 import ru.practicum.util.QPredicates;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,24 +52,18 @@ public class PublicUserServiceImpl implements PublicUserService {
                                             Boolean paid,
                                             LocalDateTime rangeStart,
                                             LocalDateTime rangeEnd,
-                                            Boolean onlyAvailable,
+                                            boolean onlyAvailable,
                                             EventSortParam sortParam,
                                             Integer from,
                                             Integer size) {
-        List<Event> result = new ArrayList<>();
         Pageable page = PageRequest.of(from / size, size);
 
-        Predicate predicate1 = QPredicates.builder()
+        Predicate pr1 = QPredicates.builder()
                 .add(text, QEvent.event.annotation::containsIgnoreCase)
-                .add(categories, QEvent.event.category.id::in)
-                .add(paid, QEvent.event.paid::eq)
-                .add(rangeStart, QEvent.event.eventDate::after)
-                .add(rangeEnd, QEvent.event.eventDate::before)
-                .add(EventState.PUBLISHED, QEvent.event.state::eq)
-                .buildAnd();
-
-        Predicate predicate2 = QPredicates.builder()
                 .add(text, QEvent.event.description::containsIgnoreCase)
+                .buildOr();
+
+        Predicate pr2 = QPredicates.builder()
                 .add(categories, QEvent.event.category.id::in)
                 .add(paid, QEvent.event.paid::eq)
                 .add(rangeStart, QEvent.event.eventDate::after)
@@ -77,41 +71,32 @@ public class PublicUserServiceImpl implements PublicUserService {
                 .add(EventState.PUBLISHED, QEvent.event.state::eq)
                 .buildAnd();
 
-        Iterable<Event> foundEvents1 = eventRepository.findAll(predicate1, page);
-        Iterable<Event> foundEvents2 = eventRepository.findAll(predicate2, page);
-        List<Event> ev1 =
+        Predicate predicate = ExpressionUtils.allOf(pr1, pr2);
+
+        Iterable<Event> foundEvents1 = eventRepository.findAll(predicate, page);
+        List<Event> events =
                 StreamSupport.stream(foundEvents1.spliterator(), false)
                         .collect(Collectors.toList());
-        List<Event> ev2 =
-                StreamSupport.stream(foundEvents2.spliterator(), false)
-                        .collect(Collectors.toList());
 
-        result.addAll(ev1);
-        result.addAll(ev2);
-
-        result.stream()
+        events.stream()
                 .distinct()
                 .forEach(e -> e.setConfirmedRequests(requestRepository.countRequestsByEventId(e.getId())));
 
         if (onlyAvailable) {
-            List<Event> events = ev1.stream()
+            events = events.stream()
                     .filter(e -> e.getConfirmedRequests() < e.getParticipantLimit() || e.getParticipantLimit() == 0)
                     .collect(Collectors.toList());
-
-            result.addAll(events);
-        } else {
-            result = ev1;
         }
 
         if (sortParam != null) {
             switch (sortParam) {
                 case EVENT_DATE:
-                    result = result.stream()
+                    events = events.stream()
                             .sorted(Comparator.comparing(Event::getEventDate))
                             .collect(Collectors.toList());
                     break;
                 case VIEWS:
-                    result = result.stream()
+                    events = events.stream()
                             .sorted(Comparator.comparing(Event::getViews))
                             .collect(Collectors.toList());
                     break;
@@ -120,7 +105,7 @@ public class PublicUserServiceImpl implements PublicUserService {
             }
         }
 
-        return result.stream().map(EventMapper::toShortDto).collect(Collectors.toList());
+        return events.stream().map(EventMapper::toShortDto).collect(Collectors.toList());
     }
 
     @Transactional
