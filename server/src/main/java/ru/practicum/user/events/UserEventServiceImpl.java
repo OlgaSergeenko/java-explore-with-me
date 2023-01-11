@@ -117,7 +117,7 @@ public class UserEventServiceImpl implements UserEventService {
         if (eventFound.isEmpty()) {
             throw new EventNotFoundException("Event not found");
         }
-        int confirmedRequests = requestRepository.countRequestsByEventId(eventId);
+        int confirmedRequests = requestRepository.countConfirmedRequestsByEventId(eventId);
         Event event = eventFound.get();
         event.setConfirmedRequests(confirmedRequests);
         return EventMapper.toFullDto(event);
@@ -163,7 +163,7 @@ public class UserEventServiceImpl implements UserEventService {
             requestRepository.save(request);
             return RequestMapper.toDto(request);
         }
-        int confirmedRequests = requestRepository.countRequestsByEventId(eventId);
+        int confirmedRequests = requestRepository.countConfirmedRequestsByEventId(eventId);
         if (confirmedRequests == event.getParticipantLimit()) {
             request.setStatus(RequestStatus.REJECTED);
             requestRepository.save(request);

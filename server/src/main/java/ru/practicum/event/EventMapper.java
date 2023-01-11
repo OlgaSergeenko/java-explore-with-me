@@ -60,6 +60,7 @@ public class EventMapper {
                 .initiator(new UserShortDto(event.getInitiator().getId(), event.getInitiator().getName()))
                 .title(event.getTitle())
                 .paid(event.getPaid())
+                .views(event.getViews())
                 .build();
     }
 }

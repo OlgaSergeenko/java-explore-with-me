@@ -1,7 +1,6 @@
 package ru.practicum.event;
 
 import lombok.*;
-import org.hibernate.Hibernate;
 import ru.practicum.admin.category.Category;
 import ru.practicum.admin.users.User;
 import ru.practicum.enumerated.EventState;
@@ -10,7 +9,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Getter
 @Setter
@@ -64,17 +62,4 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventState state;
     private Integer views;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Event event = (Event) o;
-        return id != null && Objects.equals(id, event.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }

@@ -2,6 +2,7 @@ package ru.practicum.request;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import ru.practicum.event.ConfirmedRequestCountByEvent;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +17,14 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
             "from ParticipationRequest as r " +
             "where r.event.id = ?1 " +
             "and r.status = 'CONFIRMED' ")
-    int countRequestsByEventId(long eventId);
+    int countConfirmedRequestsByEventId(long eventId);
+
+    @Query(value = "select new ru.practicum.event.ConfirmedRequestCountByEvent(r.event.id, count (r.id)) " +
+            "from ParticipationRequest as r " +
+            "where r.event.id in ?1 " +
+            "and r.status = 'CONFIRMED' " +
+            "group by r.event.id ")
+    List<ConfirmedRequestCountByEvent> countConfirmedRequestsByEventIds(List<Long> eventIds);
 
     List<ParticipationRequest> findAllByRequesterId(long userId);
 

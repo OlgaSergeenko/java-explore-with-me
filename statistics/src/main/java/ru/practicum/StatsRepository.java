@@ -16,14 +16,14 @@ public interface StatsRepository extends JpaRepository<EndpointHit, Integer>, Qu
             "where h.timestamp between ?1 and ?2 " +
             "and h.uri in ( ?3 ) " +
             "group by h.uri, h.app")
-    public List<ViewStats> countHitsByUri(LocalDateTime start, LocalDateTime end, List<String> uris);
+    List<ViewStats> countHitsByUri(LocalDateTime start, LocalDateTime end, List<String> uris);
 
     @Query(value = "select new ru.practicum.model.ViewStats(h.app, h.uri, count(distinct h.ip)) " +
             "from EndpointHit as h " +
             "where h.timestamp between ?1 and ?2 " +
             "and h.uri in ( ?3 ) " +
             "group by h.uri, h.app")
-    public List<ViewStats> countHitsByUriWhereUniqueIps(LocalDateTime start, LocalDateTime end, List<String> uris);
+    List<ViewStats> countHitsByUriWhereUniqueIps(LocalDateTime start, LocalDateTime end, List<String> uris);
 
     @Query(value = "select new ru.practicum.model.ViewStats(h.app, h.uri, count(distinct h.ip)) " +
             "from EndpointHit as h " +

@@ -56,7 +56,7 @@ public class UserRequestServiceImpl implements UserRequestService {
         if (event.getState() == EventState.PENDING) {
             throw new ParticipationRequestException("Sending requests to unpublished events is not allowed.");
         }
-        int confirmedReq = requestRepository.countRequestsByEventId(eventId);
+        int confirmedReq = requestRepository.countConfirmedRequestsByEventId(eventId);
         if (event.getParticipantLimit() == confirmedReq) {
             throw new ParticipationRequestException("Participant limit for this event is reached.");
         }

@@ -18,10 +18,7 @@ import ru.practicum.compilations.CompilationMapper;
 import ru.practicum.compilations.CompilationRepository;
 import ru.practicum.enumerated.EventSortParam;
 import ru.practicum.enumerated.EventState;
-import ru.practicum.event.Event;
-import ru.practicum.event.EventMapper;
-import ru.practicum.event.EventRepository;
-import ru.practicum.event.QEvent;
+import ru.practicum.event.*;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.exceptions.CategoryNotFoundException;
@@ -33,6 +30,7 @@ import ru.practicum.util.QPredicates;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -78,9 +76,18 @@ public class PublicUserServiceImpl implements PublicUserService {
                 StreamSupport.stream(foundEvents1.spliterator(), false)
                         .collect(Collectors.toList());
 
-        events.stream()
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
                 .distinct()
-                .forEach(e -> e.setConfirmedRequests(requestRepository.countRequestsByEventId(e.getId())));
+                .collect(Collectors.toList());
+
+        List<ConfirmedRequestCountByEvent> eventRequests = requestRepository.countConfirmedRequestsByEventIds(eventIds);
+
+        events.forEach(e -> e.setConfirmedRequests(
+                Math.toIntExact(eventRequests.stream()
+                        .filter(x -> Objects.equals(x.getEventId(), e.getId()))
+                        .map(ConfirmedRequestCountByEvent::getCount)
+                        .findFirst().orElse(0L))));
 
         if (onlyAvailable) {
             events = events.stream()
@@ -116,7 +123,7 @@ public class PublicUserServiceImpl implements PublicUserService {
         if (event.getState() != EventState.PUBLISHED) {
             throw new EventNotFoundException("Event is not published");
         }
-        int confirmedReq = requestRepository.countRequestsByEventId(eventId);
+        int confirmedReq = requestRepository.countConfirmedRequestsByEventId(eventId);
         event.setConfirmedRequests(confirmedReq);
         event.setViews(event.getViews() + 1);
         eventRepository.save(event);
