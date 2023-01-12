@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS HIT cascade;
+
+CREATE TABLE IF NOT EXISTS HIT
+(
+    id        BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    app       VARCHAR(50)  NOT NULL,
+    uri       VARCHAR(250) NOT NULL,
+    ip        VARCHAR      NOT NULL,
+    timestamp TIMESTAMP    NOT NULL
+);
