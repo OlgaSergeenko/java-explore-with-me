@@ -31,11 +31,11 @@ public class Comment {
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
     @Column(name = "is_modified")
-    private boolean isModified;
+    private boolean isModified; // marker to indicate that the comment has been modified
     @Column(name = "modification_date")
     private LocalDateTime modificationDate;
     @ManyToOne
     @JoinColumn(name = "response_comment_id")
     private Comment response;
-    private boolean reply;
+    private boolean reply; // marker to indicate that the comment is a reply to another comment
 }
