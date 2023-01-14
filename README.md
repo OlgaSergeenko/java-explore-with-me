@@ -50,8 +50,11 @@ Pagination is available at this endpoint.
 Admin endpoint to remove the comment. Admin is allowed to remove any comment and comment respond. Once the comment is 
 removed the response (if there is any) should be removed as well. 
 
-### Project schema : *to be added*
+### Project schema : 
+[PROJECT STRUCTURE](EWM%20project.jpg)
+![STRUCTURE](EWM%20project.jpg)
 
-### Database diagram : *to be added*
-
+### Database diagram : 
+[DATABASE DIAGRAM](DB%20schema.jpg)
+![DIAGRAM](DB%20schema.jpg)
 
