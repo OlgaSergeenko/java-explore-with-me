@@ -81,7 +81,7 @@ public class CommentServiceImpl implements CommentService {
             throw new OperationNotAllowedException("Only comment without event owner reply can be removed");
         }
 
-        Optional<Comment> isRespond = commentRepository.findByRespondId(commentId);
+        Optional<Comment> isRespond = commentRepository.findByResponseId(commentId);
         if (isRespond.isPresent()) {
             throw new OperationNotAllowedException("Owner respond can not be removed");
         }
