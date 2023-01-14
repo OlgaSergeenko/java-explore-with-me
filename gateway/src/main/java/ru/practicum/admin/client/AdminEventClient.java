@@ -81,5 +81,17 @@ public class AdminEventClient extends BaseClient {
     public ResponseEntity<Object> rejectEvent(long eventId) {
         return patch("/" + eventId + "/reject", eventId);
     }
+
+    public ResponseEntity<Object> removeComment(long eventId, long commentId) {
+        return delete("/" + eventId + "/comments/" + commentId);
+    }
+
+    public ResponseEntity<Object> getComments(long eventId, Integer from, Integer size) {
+        Map<String, Object> parameters = Map.of(
+                "from", from,
+                "size", size
+        );
+        return get("/" + eventId + "?from={from}&size={size}", null, parameters);
+    }
 }
 

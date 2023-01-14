@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.admin.events.AdminEventService;
 import ru.practicum.admin.events.AdminUpdateEventRequestDto;
+import ru.practicum.comment.CommentService;
+import ru.practicum.comment.dto.CommentWithRespondDto;
 import ru.practicum.enumerated.EventState;
 import ru.practicum.event.dto.EventFullDto;
 
@@ -20,6 +22,7 @@ import java.util.List;
 public class AdminEventController {
 
     private final AdminEventService eventService;
+    private final CommentService commentService;
 
     @GetMapping
     public ResponseEntity<List<EventFullDto>> getAllEventsByParams(@RequestParam(required = false) List<Long> users,
@@ -62,5 +65,20 @@ public class AdminEventController {
     @PatchMapping("/{eventId}/reject")
     public ResponseEntity<EventFullDto> rejectEvent(@PathVariable("eventId") long eventId) {
         return ResponseEntity.ok(eventService.rejectEvent(eventId));
+    }
+
+    @DeleteMapping("/{eventId}/comments/{commentId}")
+    public long removeComment(@PathVariable("eventId") Long eventId,
+                              @PathVariable("commentId") Integer commentId) {
+        log.info(String.format("Admin removing comment id - %d", commentId));
+        commentService.adminRemoveComment(eventId, commentId);
+        return commentId;
+    }
+
+    @GetMapping("/{eventId}/comments")
+    public ResponseEntity<List<CommentWithRespondDto>> getAllCommentsByEventId(@PathVariable("eventId") Long eventId,
+                                                                               @RequestParam Integer from,
+                                                                               @RequestParam Integer size) {
+        return ResponseEntity.ok(commentService.getAllEventComments(eventId, from, size));
     }
 }

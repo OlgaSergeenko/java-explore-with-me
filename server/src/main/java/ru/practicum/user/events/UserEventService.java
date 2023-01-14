@@ -9,7 +9,7 @@ import ru.practicum.request.ParticipationRequestDto;
 import java.util.List;
 
 public interface UserEventService {
-    List<EventShortDto> getAllUserEvents(int userId, int from, int size);
+    List<EventShortDto> getAllUserEvents(long userId, int from, int size);
 
     EventFullDto updateEvent(long userId, UpdateEventDto updateEventDto);
 

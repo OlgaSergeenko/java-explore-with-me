@@ -8,6 +8,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.user.client.EventClient;
 import ru.practicum.user.client.RequestClient;
+import ru.practicum.user.dto.ModifyCommentDto;
+import ru.practicum.user.dto.NewCommentDto;
 import ru.practicum.user.dto.NewEventDto;
 import ru.practicum.user.dto.UpdateEventRequestDto;
 
@@ -23,7 +25,7 @@ import javax.validation.constraints.PositiveOrZero;
 @Validated
 public class GatewayUserController {
 
-    private final EventClient userClient;
+    private final EventClient eventClient;
     private final RequestClient requestClient;
 
     @GetMapping("/{userId}/events")
@@ -31,35 +33,35 @@ public class GatewayUserController {
                                                     @RequestParam(name = "from", required = false, defaultValue = "0") @PositiveOrZero Integer from,
                                                     @RequestParam(name = "size", required = false, defaultValue = "10") @PositiveOrZero Integer size) {
         log.info("Get all events for user {}", userId);
-        return userClient.getEventsByUserId(userId, from, size);
+        return eventClient.getEventsByUserId(userId, from, size);
     }
 
     @PostMapping("/{userId}/events")
     public ResponseEntity<Object> saveNewEvent(@Valid @RequestBody NewEventDto newEventDto,
                                                @Positive @PathVariable Long userId) {
         log.info("Creating event {}", newEventDto);
-        return userClient.createNewEvent(userId, newEventDto);
+        return eventClient.createNewEvent(userId, newEventDto);
     }
 
     @PatchMapping("/{userId}/events")
     public ResponseEntity<Object> updateEvent(@Valid @RequestBody UpdateEventRequestDto eventRequestDto,
                                               @Positive @PathVariable Long userId) {
         log.info("Updating event id - {}", eventRequestDto.getEventId());
-        return userClient.updateEvent(userId, eventRequestDto);
+        return eventClient.updateEvent(userId, eventRequestDto);
     }
 
     @GetMapping("/{userId}/events/{eventId}")
     public ResponseEntity<Object> getEventByUserIdAndEventId(@Positive @PathVariable Long userId,
                                                              @Positive @PathVariable Long eventId) {
         log.info("Get events id - {} for user id - {}", eventId, userId);
-        return userClient.getEventByUserIdAndEventId(userId, eventId);
+        return eventClient.getEventByUserIdAndEventId(userId, eventId);
     }
 
     @PatchMapping("/{userId}/events/{eventId}")
     public ResponseEntity<Object> cancelEvent(@Positive @PathVariable Long userId,
                                               @Positive @PathVariable Long eventId) {
         log.info("Cancelling event id - {}", eventId);
-        return userClient.cancelEvent(userId, eventId);
+        return eventClient.cancelEvent(userId, eventId);
     }
 
     @GetMapping("/{userId}/events/{eventId}/requests")
@@ -105,5 +107,47 @@ public class GatewayUserController {
                                                 @PathVariable("requestId") Long reqId) {
         log.info("Canceling the requests");
         return requestClient.cancelRequest(userId, reqId);
+    }
+
+    @PostMapping("/{userId}/events/{eventId}/comments")
+    public ResponseEntity<Object> postNewComment(@RequestBody @Valid NewCommentDto commentDto,
+                                                 @PathVariable("userId") Long userId,
+                                                 @PathVariable("eventId") Long eventId) {
+        log.info("Posting new comment");
+        return eventClient.postNewComment(userId, eventId, commentDto);
+    }
+
+    @PostMapping("/{userId}/events/{eventId}/comments/{commentId}/reply")
+    public ResponseEntity<Object> addReplyToComment(@PathVariable("userId") Long userId,
+                                                    @PathVariable("eventId") Long eventId,
+                                                    @PathVariable("commentId") Integer commentId,
+                                                    @RequestBody NewCommentDto commentDto) {
+        log.info(String.format("Replying to comment id - %d", commentId));
+        return eventClient.postRespond(userId, eventId, commentId, commentDto);
+    }
+
+    @PatchMapping("/{userId}/events/{eventId}/comments/{commentId}")
+    public ResponseEntity<Object> modifyComment(@PathVariable("userId") Long userId,
+                                                @PathVariable("eventId") Long eventId,
+                                                @PathVariable("commentId") Integer commentId,
+                                                @RequestBody @Valid ModifyCommentDto commentDto) {
+        log.info(String.format("Editing comment id - %d", commentId));
+        return eventClient.editComment(userId, eventId, commentId, commentDto);
+    }
+
+    @GetMapping("/{userId}/events/{eventId}/comments")
+    public ResponseEntity<Object> getAllCommentsByEventId(@PathVariable("userId") Long userId,
+                                                          @PathVariable("eventId") Long eventId,
+                                                          @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                          @RequestParam(required = false, defaultValue = "10") Integer size) {
+        return eventClient.getComments(userId, eventId, from, size);
+    }
+
+    @DeleteMapping("/{userId}/events/{eventId}/comments/{commentId}")
+    public void removeComment(@PathVariable("userId") Long userId,
+                              @PathVariable("eventId") Long eventId,
+                              @PathVariable("commentId") Integer commentId) {
+        log.info(String.format("Removing comment id - %d", commentId));
+        eventClient.removeComment(userId, eventId, commentId);
     }
 }

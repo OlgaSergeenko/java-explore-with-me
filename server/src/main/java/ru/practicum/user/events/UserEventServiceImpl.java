@@ -40,7 +40,7 @@ public class UserEventServiceImpl implements UserEventService {
     private final RequestRepository requestRepository;
 
     @Override
-    public List<EventShortDto> getAllUserEvents(int userId, int from, int size) {
+    public List<EventShortDto> getAllUserEvents(long userId, int from, int size) {
         Pageable page = PageRequest.of(from / size, size);
         return eventRepository.findAllByAndInitiatorId(userId, page).stream()
                 .map(EventMapper::toShortDto)

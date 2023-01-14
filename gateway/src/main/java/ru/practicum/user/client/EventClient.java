@@ -8,6 +8,8 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.baseClient.BaseClient;
+import ru.practicum.user.dto.ModifyCommentDto;
+import ru.practicum.user.dto.NewCommentDto;
 import ru.practicum.user.dto.NewEventDto;
 import ru.practicum.user.dto.UpdateEventRequestDto;
 
@@ -50,6 +52,30 @@ public class EventClient extends BaseClient {
 
     public ResponseEntity<Object> cancelEvent(long userId, long eventId) {
         return patch("/" + userId + "/events/" + eventId);
+    }
+
+    public ResponseEntity<Object> postNewComment(long userId, long eventId, NewCommentDto comment) {
+        return post("/" + userId + "/events/" + eventId + "/comments", comment);
+    }
+
+    public ResponseEntity<Object> postRespond(long userId, long eventId, long commentId, NewCommentDto comment) {
+        return post("/" + userId + "/events/" + eventId + "/comments/" + commentId + "/reply", comment);
+    }
+
+    public ResponseEntity<Object> editComment(long userId, long eventId, long commentId, ModifyCommentDto comment) {
+        return patch("/" + userId + "/events/" + eventId + "/comments/" + commentId, comment);
+    }
+
+    public ResponseEntity<Object> getComments(long userId, long eventId, Integer from, Integer size) {
+        Map<String, Object> parameters = Map.of(
+                "from", from,
+                "size", size
+        );
+        return get("/" + userId + "/events/" + eventId + "/comments?from={from}&size={size}", null, parameters);
+    }
+
+    public ResponseEntity<Object> removeComment(long userId, long eventId, long commentId) {
+        return delete("/" + userId + "/events/" + eventId + "/comments/" + commentId);
     }
 }
 
