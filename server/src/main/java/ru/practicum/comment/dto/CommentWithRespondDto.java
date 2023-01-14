@@ -23,5 +23,5 @@ public class CommentWithRespondDto {
     private boolean isModified;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modificationDate;
-    private CommentDto respond;
+    private CommentDto response;
 }

@@ -35,7 +35,7 @@ public class Comment {
     @Column(name = "modification_date")
     private LocalDateTime modificationDate;
     @ManyToOne
-    @JoinColumn(name = "respond_comment_id")
-    private Comment respond;
+    @JoinColumn(name = "response_comment_id")
+    private Comment response;
     private boolean reply;
 }

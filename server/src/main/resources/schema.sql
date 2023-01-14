@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS COMMENT
     creation_date      TIMESTAMP WITHOUT TIME ZONE,
     is_modified        BOOLEAN,
     modification_date  TIMESTAMP WITHOUT TIME ZONE,
-    respond_comment_id BIGINT REFERENCES COMMENT (comment_id),
+    response_comment_id BIGINT REFERENCES COMMENT (comment_id),
     reply           BOOLEAN
 );
 

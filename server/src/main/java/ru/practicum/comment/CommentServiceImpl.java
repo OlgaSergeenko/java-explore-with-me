@@ -9,6 +9,7 @@ import ru.practicum.admin.users.User;
 import ru.practicum.admin.users.UserRepository;
 import ru.practicum.admin.users.UserShortDto;
 import ru.practicum.comment.dto.*;
+import ru.practicum.enumerated.EventState;
 import ru.practicum.event.Event;
 import ru.practicum.event.EventRepository;
 import ru.practicum.event.dto.EventIdTitleDto;
@@ -38,6 +39,9 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = CommentMapper.toComment(commentDto);
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException("Event not found"));
+        if (event.getState() != EventState.PUBLISHED) {
+            throw new OperationNotAllowedException("Event should be PUBLISHED to leave a comment");
+        }
         comment.setEvent(event);
         User author = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -54,9 +58,10 @@ public class CommentServiceImpl implements CommentService {
             throw new CommentNotFoundException("Comment not found");
         }
         Comment comment = commentToModify.get();
-        if (comment.getRespond() != null) {
+        if (comment.getResponse() != null) {
             throw new OperationNotAllowedException("Only comment without event owner reply can be edited");
         }
+
         comment.setText(commentDto.getText());
         comment.setModified(true);
         comment.setModificationDate(LocalDateTime.now());
@@ -72,7 +77,7 @@ public class CommentServiceImpl implements CommentService {
             throw new CommentNotFoundException("Only comment author can remove comment");
         }
         Comment comment = commentToRemove.get();
-        if (comment.getRespond() != null) {
+        if (comment.getResponse() != null) {
             throw new OperationNotAllowedException("Only comment without event owner reply can be removed");
         }
 
@@ -95,7 +100,7 @@ public class CommentServiceImpl implements CommentService {
         }
         Comment comment = commentToReply.get();
 
-        if (comment.getRespond() != null) {
+        if (comment.getResponse() != null) {
             throw new OperationNotAllowedException("Reply to this comment is already posted");
         }
 
@@ -111,7 +116,7 @@ public class CommentServiceImpl implements CommentService {
         reply.setAuthor(replyAuthor);
         reply.setReply(true);
         commentRepository.save(reply);
-        comment.setRespond(reply);
+        comment.setResponse(reply);
 
         return CommentMapper.toDto(commentRepository.save(comment));
     }
@@ -122,11 +127,11 @@ public class CommentServiceImpl implements CommentService {
         List<Comment> comments = commentRepository.findAllByEventIdAndReplyIsFalse(eventId, page);
 
         List<CommentWithRespondDto> comments1 = comments.stream()
-                .filter(c -> c.getRespond() != null)
+                .filter(c -> c.getResponse() != null)
                 .map(CommentMapper::toDto)
                 .collect(Collectors.toList());
         List<CommentWithRespondDto> comments2 = comments.stream()
-                .filter(c -> c.getRespond() == null)
+                .filter(c -> c.getResponse() == null)
                 .map(c -> CommentWithRespondDto.builder()
                         .id(c.getId())
                         .text(c.getText())
@@ -137,7 +142,7 @@ public class CommentServiceImpl implements CommentService {
                         .creationDate(c.getCreationDate())
                         .isModified(c.isModified())
                         .modificationDate(c.getModificationDate())
-                        .respond(null)
+                        .response(null)
                         .build())
                 .collect(Collectors.toList());
         comments1.addAll(comments2);
@@ -152,8 +157,8 @@ public class CommentServiceImpl implements CommentService {
             throw new CommentNotFoundException("Comment not found");
         }
         Comment comment = commentToRemove.get();
-        if (comment.getRespond() != null) {
-            commentRepository.deleteById(comment.getRespond().getId());
+        if (comment.getResponse() != null) {
+            commentRepository.deleteById(comment.getResponse().getId());
         }
         commentRepository.deleteById(commentId);
     }

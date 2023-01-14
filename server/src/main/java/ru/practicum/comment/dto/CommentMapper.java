@@ -16,7 +16,7 @@ public class CommentMapper {
                 .creationDate(LocalDateTime.now())
                 .isModified(false)
                 .modificationDate(null)
-                .respond(null)
+                .response(null)
                 .build();
     }
 
@@ -31,14 +31,14 @@ public class CommentMapper {
                 .creationDate(comment.getCreationDate())
                 .isModified(comment.isModified())
                 .modificationDate(comment.getModificationDate())
-                .respond(CommentDto.builder()
-                        .id(comment.getRespond().getId())
-                        .text(comment.getRespond().getText())
-                        .author(UserShortDto.builder().id(comment.getRespond().getAuthor().getId())
-                                .name(comment.getRespond().getAuthor().getName()).build())
-                        .creationDate(comment.getRespond().getCreationDate())
-                        .isModified(comment.getRespond().isModified())
-                        .modificationDate(comment.getRespond().getModificationDate())
+                .response(CommentDto.builder()
+                        .id(comment.getResponse().getId())
+                        .text(comment.getResponse().getText())
+                        .author(UserShortDto.builder().id(comment.getResponse().getAuthor().getId())
+                                .name(comment.getResponse().getAuthor().getName()).build())
+                        .creationDate(comment.getResponse().getCreationDate())
+                        .isModified(comment.getResponse().isModified())
+                        .modificationDate(comment.getResponse().getModificationDate())
                         .build())
                 .build();
     }
