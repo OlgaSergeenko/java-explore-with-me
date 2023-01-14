@@ -3,7 +3,6 @@ package ru.practicum.comment.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.admin.users.UserShortDto;
-import ru.practicum.comment.Comment;
 import ru.practicum.event.dto.EventIdTitleDto;
 
 import java.time.LocalDateTime;
