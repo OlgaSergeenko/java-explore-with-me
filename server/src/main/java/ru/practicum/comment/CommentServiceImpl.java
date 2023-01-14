@@ -126,27 +126,21 @@ public class CommentServiceImpl implements CommentService {
         Pageable page = PageRequest.of(from / size, size);
         List<Comment> comments = commentRepository.findAllByEventIdAndReplyIsFalse(eventId, page);
 
-        List<CommentWithRespondDto> comments1 = comments.stream()
-                .filter(c -> c.getResponse() != null)
-                .map(CommentMapper::toDto)
-                .collect(Collectors.toList());
-        List<CommentWithRespondDto> comments2 = comments.stream()
-                .filter(c -> c.getResponse() == null)
-                .map(c -> CommentWithRespondDto.builder()
-                        .id(c.getId())
-                        .text(c.getText())
-                        .event(EventIdTitleDto.builder().id(c.getEvent().getId())
-                                .title(c.getEvent().getTitle()).build())
-                        .author(UserShortDto.builder().id(c.getAuthor().getId())
-                                .name(c.getAuthor().getName()).build())
-                        .creationDate(c.getCreationDate())
-                        .isModified(c.isModified())
-                        .modificationDate(c.getModificationDate())
-                        .response(null)
-                        .build())
-                .collect(Collectors.toList());
-        comments1.addAll(comments2);
-        return comments1;
+        List<CommentWithRespondDto> result = comments.stream()
+                .map(c -> c.getResponse() != null ? CommentMapper.toDto(c)
+                        : new CommentWithRespondDto(
+                        c.getId(),
+                        c.getText(),
+                        EventIdTitleDto.builder().id(c.getEvent().getId())
+                                .title(c.getEvent().getTitle()).build(),
+                        UserShortDto.builder().id(c.getAuthor().getId())
+                                .name(c.getAuthor().getName()).build(),
+                        c.getCreationDate(),
+                        c.isModified(),
+                        c.getModificationDate(),
+                        null))
+                        .collect(Collectors.toList());
+        return result;
     }
 
     @Transactional

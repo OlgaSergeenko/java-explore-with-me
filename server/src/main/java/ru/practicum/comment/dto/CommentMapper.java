@@ -34,6 +34,8 @@ public class CommentMapper {
                 .response(CommentDto.builder()
                         .id(comment.getResponse().getId())
                         .text(comment.getResponse().getText())
+                        .event(EventIdTitleDto.builder().id(comment.getResponse().getEvent().getId())
+                                .title(comment.getResponse().getEvent().getTitle()).build())
                         .author(UserShortDto.builder().id(comment.getResponse().getAuthor().getId())
                                 .name(comment.getResponse().getAuthor().getName()).build())
                         .creationDate(comment.getResponse().getCreationDate())
@@ -54,6 +56,7 @@ public class CommentMapper {
                 .creationDate(comment.getCreationDate())
                 .isModified(comment.isModified())
                 .modificationDate(comment.getModificationDate())
+                .response(null)
                 .build();
     }
 }
