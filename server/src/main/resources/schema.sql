@@ -64,20 +64,20 @@ CREATE TABLE IF NOT EXISTS REQUEST
     creation_date TIMESTAMP WITHOUT TIME ZONE,
     event_id      BIGINT REFERENCES EVENT (event_id)   NOT NULL,
     requester_id  BIGINT REFERENCES EWM_USER (user_id) NOT NULL,
-    status        VARCHAR(50)
+    status        VARCHAR(50)                          NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS COMMENT
 (
-    comment_id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    comment_text       VARCHAR(2000)                        NOT NULL
+    comment_id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    comment_text        VARCHAR(2000)                        NOT NULL
         CONSTRAINT COMMENT_TEXT CHECK (length(comment_text) >= 1),
-    event_id           BIGINT REFERENCES EVENT (event_id)   NOT NULL,
-    author_id          BIGINT REFERENCES EWM_USER (user_id) NOT NULL,
-    creation_date      TIMESTAMP WITHOUT TIME ZONE,
-    is_modified        BOOLEAN,
-    modification_date  TIMESTAMP WITHOUT TIME ZONE,
+    event_id            BIGINT REFERENCES EVENT (event_id)   NOT NULL,
+    author_id           BIGINT REFERENCES EWM_USER (user_id) NOT NULL,
+    creation_date       TIMESTAMP WITHOUT TIME ZONE          NOT NULL,
+    is_modified         BOOLEAN,
+    modification_date   TIMESTAMP WITHOUT TIME ZONE,
     response_comment_id BIGINT REFERENCES COMMENT (comment_id),
-    reply           BOOLEAN
+    reply               BOOLEAN                              NOT NULL
 );
 

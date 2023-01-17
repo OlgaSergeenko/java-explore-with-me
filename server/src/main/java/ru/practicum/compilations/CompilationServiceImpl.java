@@ -9,7 +9,7 @@ import ru.practicum.exceptions.CompilationNotFoundException;
 import ru.practicum.exceptions.ConflictException;
 import ru.practicum.exceptions.EventNotFoundException;
 
-@Transactional(readOnly = true)
+@Transactional
 @Service
 @AllArgsConstructor
 public class CompilationServiceImpl implements CompilationService {
@@ -17,7 +17,6 @@ public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
 
-    @Transactional
     @Override
     public CompilationDto postNewCompilation(NewCompilationDto compilationDto) {
         Compilation compilation = CompilationMapper.toCompilation(compilationDto);
@@ -27,7 +26,6 @@ public class CompilationServiceImpl implements CompilationService {
         return CompilationMapper.toDto(saved);
     }
 
-    @Transactional
     @Override
     public void removeCompilation(int compId) {
         compilationRepository.findById(compId)
@@ -35,7 +33,6 @@ public class CompilationServiceImpl implements CompilationService {
         compilationRepository.deleteById(compId);
     }
 
-    @Transactional
     @Override
     public void removeEventFromCompilation(int compId, long eventId) {
         Compilation compilation = compilationRepository.findById(compId)
@@ -49,7 +46,6 @@ public class CompilationServiceImpl implements CompilationService {
         compilationRepository.save(compilation);
     }
 
-    @Transactional
     @Override
     public void addEventToCompilation(int compId, long eventId) {
         Compilation compilation = compilationRepository.findById(compId)
@@ -63,7 +59,6 @@ public class CompilationServiceImpl implements CompilationService {
         compilationRepository.save(compilation);
     }
 
-    @Transactional
     @Override
     public void pinCompilation(int compId) {
         Compilation compilation = compilationRepository.findById(compId)
@@ -72,7 +67,6 @@ public class CompilationServiceImpl implements CompilationService {
         compilationRepository.save(compilation);
     }
 
-    @Transactional
     @Override
     public void unpinCompilation(int compId) {
         Compilation compilation = compilationRepository.findById(compId)

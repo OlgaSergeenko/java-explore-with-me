@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Transactional(readOnly = true)
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
@@ -33,7 +33,6 @@ public class CommentServiceImpl implements CommentService {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
 
-    @Transactional
     @Override
     public CommentDto postNewComment(long userId, long eventId, NewCommentDto commentDto) {
         Comment comment = CommentMapper.toComment(commentDto);
@@ -50,7 +49,6 @@ public class CommentServiceImpl implements CommentService {
         return CommentMapper.toDtoNoRespond(commentRepository.save(comment));
     }
 
-    @Transactional
     @Override
     public CommentDto editComment(long userId, long eventId, long commentId, ModifyCommentDto commentDto) {
         Optional<Comment> commentToModify = commentRepository.findByIdAndEventIdAndAuthorId(commentId, eventId, userId);
@@ -69,7 +67,6 @@ public class CommentServiceImpl implements CommentService {
         return CommentMapper.toDtoNoRespond(commentRepository.save(comment));
     }
 
-    @Transactional
     @Override
     public void removeComment(long userId, long eventId, long commentId) {
         Optional<Comment> commentToRemove = commentRepository.findByIdAndEventIdAndAuthorId(commentId, eventId, userId);
@@ -89,7 +86,6 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.deleteById(commentId);
     }
 
-    @Transactional
     @Override
     public CommentWithRespondDto replyToComment(long userId, long eventId, long commentId, NewCommentDto commentDto) {
         Comment reply = CommentMapper.toComment(commentDto);
@@ -121,12 +117,13 @@ public class CommentServiceImpl implements CommentService {
         return CommentMapper.toDto(commentRepository.save(comment));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CommentWithRespondDto> getAllEventComments(long eventId, Integer from, Integer size) {
         Pageable page = PageRequest.of(from / size, size);
         List<Comment> comments = commentRepository.findAllByEventIdAndReplyIsFalse(eventId, page);
 
-        List<CommentWithRespondDto> result = comments.stream()
+        return comments.stream()
                 .map(c -> c.getResponse() != null ? CommentMapper.toDto(c)
                         : new CommentWithRespondDto(
                         c.getId(),
@@ -140,10 +137,8 @@ public class CommentServiceImpl implements CommentService {
                         c.getModificationDate(),
                         null))
                         .collect(Collectors.toList());
-        return result;
     }
 
-    @Transactional
     @Override
     public void adminRemoveComment(long eventId, long commentId) {
         Optional<Comment> commentToRemove = commentRepository.findByIdAndEventId(commentId, eventId);

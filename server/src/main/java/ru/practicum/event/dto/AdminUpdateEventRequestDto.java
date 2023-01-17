@@ -1,4 +1,4 @@
-package ru.practicum.admin.events;
+package ru.practicum.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

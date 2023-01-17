@@ -13,6 +13,7 @@ import ru.practicum.event.Event;
 import ru.practicum.event.EventMapper;
 import ru.practicum.event.EventRepository;
 import ru.practicum.event.QEvent;
+import ru.practicum.event.dto.AdminUpdateEventRequestDto;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.exceptions.CategoryNotFoundException;
 import ru.practicum.exceptions.EventNotFoundException;
@@ -25,7 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@Transactional(readOnly = true)
+@Transactional
 @Service
 @AllArgsConstructor
 public class AdminEventServiceImpl implements AdminEventService {
@@ -33,6 +34,7 @@ public class AdminEventServiceImpl implements AdminEventService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public List<EventFullDto> getALlEvents(List<Long> users,
                                            List<EventState> states,
@@ -58,7 +60,6 @@ public class AdminEventServiceImpl implements AdminEventService {
         return result.stream().map(EventMapper::toFullDto).collect(Collectors.toList());
     }
 
-    @Transactional
     @Override
     public EventFullDto editEvent(long eventId, AdminUpdateEventRequestDto eventRequestDto) {
         Event event = eventRepository.findById(eventId)
@@ -81,7 +82,6 @@ public class AdminEventServiceImpl implements AdminEventService {
         return EventMapper.toFullDto(eventRepository.save(event));
     }
 
-    @Transactional
     @Override
     public EventFullDto publishEvent(long eventId) {
         Event event = eventRepository.findById(eventId)
@@ -99,7 +99,6 @@ public class AdminEventServiceImpl implements AdminEventService {
         return EventMapper.toFullDto(eventRepository.save(event));
     }
 
-    @Transactional
     @Override
     public EventFullDto rejectEvent(long eventId) {
         Event event = eventRepository.findById(eventId)

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Transactional(readOnly = true)
+@Transactional
 @Service
 @AllArgsConstructor
 public class UserRequestServiceImpl implements UserRequestService {
@@ -31,6 +31,7 @@ public class UserRequestServiceImpl implements UserRequestService {
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public List<ParticipationRequestDto> getAllParticipationRequestsByUserId(long userId) {
         return requestRepository.findAllByRequesterId(userId).stream()
@@ -38,7 +39,6 @@ public class UserRequestServiceImpl implements UserRequestService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     @Override
     public ParticipationRequestDto postParticipationRequest(long userId, long eventId) {
         Optional<ParticipationRequest> requestCheck = requestRepository.findByRequesterIdAndEventId(userId, eventId);
@@ -76,7 +76,6 @@ public class UserRequestServiceImpl implements UserRequestService {
         return RequestMapper.toDto(requestRepository.save(request));
     }
 
-    @Transactional
     @Override
     public ParticipationRequestDto cancelParticipationRequest(long userId, long reqId) {
         ParticipationRequest request = requestRepository.findByIdAndRequesterId(reqId, userId)
