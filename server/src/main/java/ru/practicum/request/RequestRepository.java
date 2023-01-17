@@ -19,7 +19,7 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
             "and r.status = 'CONFIRMED' ")
     int countConfirmedRequestsByEventId(long eventId);
 
-    @Query(value = "select new ru.practicum.event.ConfirmedRequestCountByEvent(r.event.id, count (r.id)) " +
+    @Query(value = "select new ru.practicum.event.dto.ConfirmedRequestCountByEvent(r.event.id, count (r.id)) " +
             "from ParticipationRequest as r " +
             "where r.event.id in ?1 " +
             "and r.status = 'CONFIRMED' " +
