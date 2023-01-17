@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS LOCATION cascade;
 DROP TABLE IF EXISTS REQUEST cascade;
 DROP TABLE IF EXISTS COMPILATION cascade;
 DROP TABLE IF EXISTS COMPILATION_EVENT cascade;
+DROP TABLE IF EXISTS COMMENT cascade;
 
 CREATE TABLE IF NOT EXISTS EWM_USER
 (
@@ -22,7 +23,7 @@ CREATE TABLE IF NOT EXISTS CATEGORY
 CREATE TABLE IF NOT EXISTS COMPILATION
 (
     compilation_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    pinned         BOOLEAN NOT NULL,
+    pinned         BOOLEAN      NOT NULL,
     title          VARCHAR(120) NOT NULL
 );
 
@@ -53,7 +54,7 @@ CREATE TABLE IF NOT EXISTS EVENT
 CREATE TABLE IF NOT EXISTS COMPILATION_EVENT
 (
     compilation_id BIGINT REFERENCES COMPILATION (compilation_id),
-    event_id BIGINT REFERENCES EVENT (event_id),
+    event_id       BIGINT REFERENCES EVENT (event_id),
     CONSTRAINT comp_event_pk primary key (compilation_id, event_id)
 );
 
@@ -63,6 +64,20 @@ CREATE TABLE IF NOT EXISTS REQUEST
     creation_date TIMESTAMP WITHOUT TIME ZONE,
     event_id      BIGINT REFERENCES EVENT (event_id)   NOT NULL,
     requester_id  BIGINT REFERENCES EWM_USER (user_id) NOT NULL,
-    status        VARCHAR(50)
+    status        VARCHAR(50)                          NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS COMMENT
+(
+    comment_id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    comment_text        VARCHAR(2000)                        NOT NULL
+        CONSTRAINT COMMENT_TEXT CHECK (length(comment_text) >= 1),
+    event_id            BIGINT REFERENCES EVENT (event_id)   NOT NULL,
+    author_id           BIGINT REFERENCES EWM_USER (user_id) NOT NULL,
+    creation_date       TIMESTAMP WITHOUT TIME ZONE          NOT NULL,
+    is_modified         BOOLEAN,
+    modification_date   TIMESTAMP WITHOUT TIME ZONE,
+    response_comment_id BIGINT REFERENCES COMMENT (comment_id),
+    reply               BOOLEAN                              NOT NULL
 );
 

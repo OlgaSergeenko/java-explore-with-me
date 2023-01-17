@@ -29,6 +29,12 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
+    @ExceptionHandler(CommentNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleCommentNotFoundException(final CommentNotFoundException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
     @ExceptionHandler(RequestNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleRequestNotFoundException(final RequestNotFoundException e) {

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Transactional(readOnly = true)
+@Transactional
 @Service
 @AllArgsConstructor
 public class UserEventServiceImpl implements UserEventService {
@@ -39,15 +39,15 @@ public class UserEventServiceImpl implements UserEventService {
     private final CategoryRepository categoryRepository;
     private final RequestRepository requestRepository;
 
+    @Transactional(readOnly = true)
     @Override
-    public List<EventShortDto> getAllUserEvents(int userId, int from, int size) {
+    public List<EventShortDto> getAllUserEvents(long userId, int from, int size) {
         Pageable page = PageRequest.of(from / size, size);
         return eventRepository.findAllByAndInitiatorId(userId, page).stream()
                 .map(EventMapper::toShortDto)
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     @Override
     public EventFullDto updateEvent(long userId, UpdateEventDto updateEventDto) {
         if (updateEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
@@ -81,7 +81,6 @@ public class UserEventServiceImpl implements UserEventService {
         return EventMapper.toFullDto(saved);
     }
 
-    @Transactional
     @Override
     public EventFullDto postNewEvent(long userId, NewEventDto newEventDto) {
         if (newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
@@ -111,6 +110,7 @@ public class UserEventServiceImpl implements UserEventService {
         return EventMapper.toFullDto(eventRepository.save(event));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public EventFullDto getEventById(long userId, long eventId) {
         Optional<Event> eventFound = eventRepository.findById(eventId);
@@ -123,7 +123,6 @@ public class UserEventServiceImpl implements UserEventService {
         return EventMapper.toFullDto(event);
     }
 
-    @Transactional
     @Override
     public EventFullDto cancelEventById(long userId, long eventId) {
         Optional<Event> eventToCancel = eventRepository.findByIdAndInitiatorId(eventId, userId);
@@ -138,13 +137,13 @@ public class UserEventServiceImpl implements UserEventService {
         return EventMapper.toFullDto(eventRepository.save(event));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ParticipationRequestDto> getRequestsByEventId(long userId, long eventId) {
         List<ParticipationRequest> requests = requestRepository.findAllByEventId_AndEvent_InitiatorId(eventId, userId);
         return requests.stream().map(RequestMapper::toDto).collect(Collectors.toList());
     }
 
-    @Transactional
     @Override
     public ParticipationRequestDto confirmRequest(long userId, long eventId, long reqId) {
         ParticipationRequest request = requestRepository.findById(reqId)
@@ -175,7 +174,6 @@ public class UserEventServiceImpl implements UserEventService {
         return RequestMapper.toDto(requestSaved);
     }
 
-    @Transactional
     @Override
     public ParticipationRequestDto rejectRequest(long userId, long eventId, long reqId) {
         ParticipationRequest request = requestRepository.findByIdAndEventId_AndEvent_InitiatorId(reqId, eventId, userId)

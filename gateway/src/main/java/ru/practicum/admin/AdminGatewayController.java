@@ -130,4 +130,19 @@ public class AdminGatewayController {
         log.info("Unpinning comp {}", compId);
         return compilationClient.unpinCompilation(compId);
     }
+
+    @DeleteMapping("/events/{eventId}/comments/{commentId}")
+    public long removeComment(@PathVariable("eventId") Long eventId,
+                              @PathVariable("commentId") Integer commentId) {
+        log.info(String.format("Admin removing comment id - %d", commentId));
+        eventClient.removeComment(eventId, commentId);
+        return commentId;
+    }
+
+    @GetMapping("/events/{eventId}/comments")
+    public ResponseEntity<Object> getAllCommentsByEventId(@PathVariable("eventId") Long eventId,
+                                                          @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                          @RequestParam(required = false, defaultValue = "10") Integer size) {
+        return eventClient.getComments(eventId, from, size);
+    }
 }

@@ -11,7 +11,7 @@ import ru.practicum.exceptions.OperationNotAllowedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Transactional(readOnly = true)
+@Transactional
 @Service
 @AllArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
@@ -19,19 +19,16 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
 
-    @Transactional
     @Override
     public CategoryDto create(CategoryDto categoryDto) {
         return CategoryMapper.toDto(categoryRepository.save(CategoryMapper.toCategory(categoryDto)));
     }
 
-    @Transactional
     @Override
     public CategoryDto update(CategoryDto categoryDto) {
         return CategoryMapper.toDto(categoryRepository.save(CategoryMapper.toCategory(categoryDto)));
     }
 
-    @Transactional
     @Override
     public void remove(int catId) {
         if (!eventRepository.findAllByCategoryId(catId).isEmpty()) {
@@ -40,6 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.deleteById(catId);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CategoryDto> findAll(Pageable pageable) {
         Page<Category> categoriesPage = categoryRepository.findAll(pageable);

@@ -19,6 +19,7 @@ import ru.practicum.compilations.CompilationRepository;
 import ru.practicum.enumerated.EventSortParam;
 import ru.practicum.enumerated.EventState;
 import ru.practicum.event.*;
+import ru.practicum.event.dto.ConfirmedRequestCountByEvent;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.exceptions.CategoryNotFoundException;
@@ -34,7 +35,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@Transactional(readOnly = true)
+@Transactional
 @Service
 @AllArgsConstructor
 public class PublicUserServiceImpl implements PublicUserService {
@@ -44,6 +45,7 @@ public class PublicUserServiceImpl implements PublicUserService {
     private final CategoryRepository categoryRepository;
     private final RequestRepository requestRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public List<EventShortDto> getAllEvents(String text,
                                             List<Integer> categories,
@@ -115,7 +117,7 @@ public class PublicUserServiceImpl implements PublicUserService {
         return events.stream().map(EventMapper::toShortDto).collect(Collectors.toList());
     }
 
-    @Transactional
+
     @Override
     public EventFullDto findEvent(long eventId) {
         Event event = eventRepository.findById(eventId)
@@ -130,6 +132,7 @@ public class PublicUserServiceImpl implements PublicUserService {
         return EventMapper.toFullDto(event);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CategoryDto> getAllCategories(Integer from, Integer size) {
         Pageable page = PageRequest.of(from / size, size);
@@ -137,6 +140,7 @@ public class PublicUserServiceImpl implements PublicUserService {
         return categories.getContent().stream().map(CategoryMapper::toDto).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CategoryDto getCategoryInfo(int catId) {
         Category category = categoryRepository.findById(catId)
@@ -144,6 +148,7 @@ public class PublicUserServiceImpl implements PublicUserService {
         return CategoryMapper.toDto(category);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CompilationDto> getAllCompilations(Boolean pinned, Integer from, Integer size) {
         Pageable page = PageRequest.of(from / size, size);
@@ -157,6 +162,7 @@ public class PublicUserServiceImpl implements PublicUserService {
         return comps.stream().map(CompilationMapper::toDto).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CompilationDto getCompilationInfo(int compId) {
         Compilation compilation = compilationRepository.findById(compId)
